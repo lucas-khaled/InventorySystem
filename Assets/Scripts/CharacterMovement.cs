@@ -6,7 +6,7 @@ using UnityEngine.InputSystem;
 public class CharacterMovement : MonoBehaviour
 {
     [SerializeField] private float moveSpeed;
-    [SerializeField] private float rotationSpeed = 100f;
+    [SerializeField] private float rotationSpeed = 10f;
 
     private Rigidbody rb;
     private Vector2 moveInput;
