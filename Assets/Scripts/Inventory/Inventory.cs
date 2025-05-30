@@ -5,7 +5,7 @@ public class Inventory : MonoBehaviour
 {
     public static Inventory Instance;
 
-    private List<Item> itens = new();
+    private List<Item> items = new();
 
     private void Awake()
     {
@@ -20,11 +20,16 @@ public class Inventory : MonoBehaviour
 
     public void AddItem(Item item) 
     {
-        itens.Add(item);
+        items.Add(item);
     }
 
     public void RemoveItem(Item item) 
     {
-        itens.Remove(item);
+        items.Remove(item);
+    }
+
+    public List<Item> GetItems() 
+    {
+        return items;
     }
 }
