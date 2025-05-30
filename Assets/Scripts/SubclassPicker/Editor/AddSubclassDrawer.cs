@@ -18,7 +18,7 @@ public class AddSubclassDrawer : PropertyDrawer
         if (_subclassTypes == null)
         {
             _subclassTypes = GetAllSubclassTypes(picker.BaseType);
-            _typeNames = _subclassTypes.Select(t => t.Name).ToArray();
+            _typeNames = _subclassTypes.Select(t => t.Name.Replace("AnimationHandler","")).ToArray();
         }
 
         MonoBehaviour mb = property.serializedObject.targetObject as MonoBehaviour;
