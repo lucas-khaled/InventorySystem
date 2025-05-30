@@ -8,6 +8,7 @@ public class InventorySlotUI : MonoBehaviour, IPointerClickHandler, IPointerEnte
 {
     [SerializeField] private Image itemImage;
     [SerializeField] private AnimatedImage selectedImage;
+    [SerializeField] private AnimatedImage hoveredImage;
 
     public Action<InventorySlotUI> OnSelected;
     public Action<InventorySlotUI> OnHovered;
@@ -45,13 +46,13 @@ public class InventorySlotUI : MonoBehaviour, IPointerClickHandler, IPointerEnte
     public void Hover() 
     {
         isHovered = true;
-        //animate
+        hoveredImage.Play();
     }
 
     public void Unhover() 
     {
         isHovered = false;
-        //animate
+        hoveredImage.Stop();
     }
 
     public void OnPointerClick(PointerEventData eventData)
