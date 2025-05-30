@@ -6,32 +6,32 @@ using UnityEngine.UI;
 
 public class InventoryUI : MonoBehaviour
 {
-    [SerializeField] private InventorySlot inventorySlotPrefab;
+    [SerializeField] private InventorySlotUI inventorySlotPrefab;
     [SerializeField] private Transform slotsContent;
     [SerializeField] private DescriptionPanel descriptionPanel;
 
-    private List<InventorySlot> slots = new();
-    private InventorySlot selectedSlot;
-    private InventorySlot currentHoverSlot;
+    private List<InventorySlotUI> slots = new();
+    private InventorySlotUI selectedSlot;
+    private InventorySlotUI currentHoverSlot;
 
     public void Open() 
     {
         Clear();
-        var items = Inventory.Instance.GetItems();
+        var slots = Inventory.Instance.GetSlots();
 
-        foreach (var item in items) 
+        foreach (var slot in slots) 
         {
-            var slot = Instantiate(inventorySlotPrefab, slotsContent);
-            slot.OnSelected += OnSlotSelected;
-            slot.OnHovered += OnHovered;
-            slot.OnUnhovered += OnUnhovered;
+            var slotUI = Instantiate(inventorySlotPrefab, slotsContent);
+            slotUI.OnSelected += OnSlotSelected;
+            slotUI.OnHovered += OnHovered;
+            slotUI.OnUnhovered += OnUnhovered;
 
-            slot.SetItem(item);
-            slots.Add(slot);
+            slotUI.SetSlot(slot);
+            this.slots.Add(slotUI);
         }
     }
 
-    private void OnUnhovered(InventorySlot slot)
+    private void OnUnhovered(InventorySlotUI slot)
     {
         slot.Unhover();
         if (currentHoverSlot == slot)
@@ -41,7 +41,7 @@ public class InventoryUI : MonoBehaviour
         }
     }
 
-    private void OnHovered(InventorySlot slot)
+    private void OnHovered(InventorySlotUI slot)
     {
         if (currentHoverSlot != null)
             currentHoverSlot.Unhover();
@@ -52,7 +52,7 @@ public class InventoryUI : MonoBehaviour
         descriptionPanel.Open(slot.Item.name, slot.Item.description);
     }
 
-    private void OnSlotSelected(InventorySlot slot)
+    private void OnSlotSelected(InventorySlotUI slot)
     {
         if (selectedSlot != null)
             selectedSlot.Unselect();

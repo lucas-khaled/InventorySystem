@@ -3113,8 +3113,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1964801783}
   m_HandleRect: {fileID: 1964801782}
   m_Direction: 0
-  m_Value: 0
-  m_Size: 0.9902563
+  m_Value: 1
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -13680,6 +13680,7 @@ MonoBehaviour:
   nameText: {fileID: 1371812126}
   descriptionText: {fileID: 584450400}
   mouseOffset: {x: 80, y: 50}
+  positionLerp: 0.1
 --- !u!1001 &1589324303
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -14931,6 +14932,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c895f1461b99884e987ed336dde885f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  slotAmount: 20
 --- !u!4 &1727658728
 Transform:
   m_ObjectHideFlags: 0
