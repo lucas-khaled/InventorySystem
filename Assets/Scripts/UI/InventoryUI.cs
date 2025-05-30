@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+[RequireComponent(typeof(CanvasGroup))]
 public class InventoryUI : MonoBehaviour
 {
     [SerializeField] private InventorySlotUI inventorySlotPrefab;
@@ -13,21 +14,45 @@ public class InventoryUI : MonoBehaviour
     private List<InventorySlotUI> slots = new();
     private InventorySlotUI selectedSlot;
     private InventorySlotUI currentHoverSlot;
+    private CanvasGroup canvasGroup;
 
-    public void Open() 
+    private void Awake()
     {
-        Clear();
-        var slots = Inventory.Instance.GetSlots();
+        canvasGroup = GetComponent<CanvasGroup>();
+    }
 
-        foreach (var slot in slots) 
+    private void OnEnable()
+    {
+        Inventory.OnSlotsInitialized += InitializeUI;
+    }
+
+    private void OnDisable()
+    {
+        Inventory.OnSlotsInitialized -= InitializeUI;
+    }
+
+    private void InitializeUI()
+    {
+        CreateSlotUI();
+    }
+
+    private void CreateSlotUI()
+    {
+        var inventorySlots = Inventory.Instance.GetSlots();
+
+        var index = 0;
+        foreach (var slot in inventorySlots)
         {
             var slotUI = Instantiate(inventorySlotPrefab, slotsContent);
             slotUI.OnSelected += OnSlotSelected;
             slotUI.OnHovered += OnHovered;
             slotUI.OnUnhovered += OnUnhovered;
+            slotUI.name = "slot " + index;
 
             slotUI.SetSlot(slot);
             this.slots.Add(slotUI);
+
+            index++;
         }
     }
 
@@ -49,7 +74,10 @@ public class InventoryUI : MonoBehaviour
         currentHoverSlot = slot;
         currentHoverSlot.Hover();
 
-        descriptionPanel.Open(slot.Item.name, slot.Item.description);
+        if (slot.IsEmpty is false)
+        {
+            descriptionPanel.Open(slot.Item.name, slot.Item.description);
+        }
     }
 
     private void OnSlotSelected(InventorySlotUI slot)
@@ -61,11 +89,25 @@ public class InventoryUI : MonoBehaviour
         selectedSlot.Select();
     }
 
-    private void Clear() 
+    private void Clear()
     {
-        foreach(var slot in slots) 
+        foreach (var slot in slots)
             Destroy(slot.gameObject);
 
         slots.Clear();
+    }
+
+    public void Open()
+    {
+        canvasGroup.interactable = true;
+        canvasGroup.blocksRaycasts = true;
+        canvasGroup.alpha = 1;
+    }
+
+    public void Close()
+    {
+        canvasGroup.interactable = false;
+        canvasGroup.blocksRaycasts = false;
+        canvasGroup.alpha = 0;
     }
 }

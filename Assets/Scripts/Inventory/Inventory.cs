@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -10,9 +11,11 @@ public class Inventory : MonoBehaviour
 
     private List<Slot> slots = new();
 
+    public static Action OnSlotsInitialized;
+
     private void Awake()
     {
-        if(Instance != null) 
+        if (Instance != null)
         {
             Destroy(this);
             return;
@@ -23,25 +26,32 @@ public class Inventory : MonoBehaviour
 
     private void Start()
     {
-        for(int i = 0; i < slotAmount; i++) 
-            slots.Add(new Slot());
+        InitializeSlots();
     }
 
-    public void AddItem(Item item) 
+    private void InitializeSlots()
+    {
+        for (int i = 0; i < slotAmount; i++)
+            slots.Add(new Slot());
+
+        OnSlotsInitialized?.Invoke();
+    }
+
+    public void AddItem(Item item)
     {
         if (slots.Any(s => s.IsEmpty()) is false) return;
 
         var slot = slots.First(s => s.IsEmpty());
-        slot.item = item;
+        slot.Item = item;
     }
 
-    public void RemoveItem(Item item) 
+    public void RemoveItem(Item item)
     {
-        Slot slot = slots.Find(s => s.item == item);
-        slot.item = null;
+        Slot slot = slots.Find(s => s.Item == item);
+        slot.Item = null;
     }
 
-    public List<Slot> GetSlots() 
+    public List<Slot> GetSlots()
     {
         return slots;
     }

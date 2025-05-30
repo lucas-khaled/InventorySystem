@@ -1,8 +1,24 @@
+using System;
 using UnityEngine;
 
 public class Slot
 {
-    public Item item;
+    private Item item;
 
-    public bool IsEmpty() => item == null;
+    // Action that gets invoked whenever the item is modified
+    public Action<Slot> OnItemChanged;
+
+    // Encapsulated item property
+    public Item Item
+    {
+        get => item;
+        set
+        {
+            item = value;
+            // Invoke the action whenever the item is modified
+            OnItemChanged?.Invoke(this);
+        }
+    }
+
+    public bool IsEmpty() => Item == null;
 }
