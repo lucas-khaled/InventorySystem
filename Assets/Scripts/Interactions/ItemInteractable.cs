@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class ItemInteractable : MonoBehaviour, IInteractable
 {
+    [SerializeField] private Item item;
+
     public void Hover()
     {
         Debug.Log("Hover "+name);
@@ -9,7 +11,7 @@ public class ItemInteractable : MonoBehaviour, IInteractable
 
     public void Interact()
     {
-        Debug.Log("Interact "+name);
+        Inventory.Instance.AddItem(item);
     }
 
     public void UnHover()
