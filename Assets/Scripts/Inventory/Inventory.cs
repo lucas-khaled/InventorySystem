@@ -42,13 +42,13 @@ public class Inventory : MonoBehaviour
         if (slots.Any(s => s.IsEmpty()) is false) return;
 
         var slot = slots.First(s => s.IsEmpty());
-        slot.Item = item;
+        slot.SetItem(item);
     }
 
     public void RemoveItem(Item item)
     {
         Slot slot = slots.Find(s => s.Item == item);
-        slot.Item = null;
+        slot.SetItem(null);
     }
 
     public List<Slot> GetSlots()

@@ -36,6 +36,6 @@ public class ColorImageAnimationHandler : ImageAnimationHandler
         sequence.Kill();
 
         sequence = DOTween.Sequence();
-        sequence.Append(image.DOColor(initialColor, 0.2f)).OnComplete(() => OnEnd?.Invoke()); ;
+        sequence.Append(image.DOColor(initialColor, 0.2f)).OnComplete(() => OnEnd?.Invoke());
     }
 }

@@ -1,7 +1,7 @@
-using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(CanvasGroup))]
@@ -14,7 +14,10 @@ public class InventoryUI : MonoBehaviour
     private List<InventorySlotUI> slots = new();
     private InventorySlotUI selectedSlot;
     private InventorySlotUI currentHoverSlot;
+
+    private Item draggingItem;
     private CanvasGroup canvasGroup;
+    private bool draging;
 
     private void Awake()
     {
@@ -47,6 +50,10 @@ public class InventoryUI : MonoBehaviour
             slotUI.OnSelected += OnSlotSelected;
             slotUI.OnHovered += OnHovered;
             slotUI.OnUnhovered += OnUnhovered;
+            slotUI.OnStartedDrag += OnStartedDrag;
+            slotUI.OnEndedDrag += OnEndedDrag;
+            slotUI.OnUpdateDrag += OnUpdateDrag;
+
             slotUI.name = "slot " + index;
 
             slotUI.SetSlot(slot);
@@ -56,8 +63,81 @@ public class InventoryUI : MonoBehaviour
         }
     }
 
+    private void OnUpdateDrag(InventorySlotUI obj)
+    {
+        Debug.Log("Mouse pos: " + Input.mousePosition);
+    }
+
+    private void OnEndedDrag(InventorySlotUI slot)
+    {
+        draging = false;
+
+        Vector2 mousePosition = Input.mousePosition;
+        InventorySlotUI hitSlot = GetSlotUnderPosition(mousePosition);
+
+        if (hitSlot != null)
+        {
+            if (hitSlot.IsEmpty is false)
+                slot.SetItem(hitSlot.Item);
+
+            hitSlot.SetItem(draggingItem);
+        }
+        else
+            slot.Slot.SetItem(draggingItem);
+
+        draggingItem = null;
+        slot.EndDrag();
+    }
+
+    private InventorySlotUI GetSlotUnderPosition(Vector2 screenPosition)
+    {
+        // Use GraphicRaycaster to detect UI elements under the mouse
+        GraphicRaycaster raycaster = GetComponentInParent<Canvas>().GetComponent<GraphicRaycaster>();
+        PointerEventData pointerData = new PointerEventData(EventSystem.current)
+        {
+            position = screenPosition
+        };
+
+        List<RaycastResult> results = new List<RaycastResult>();
+        raycaster.Raycast(pointerData, results);
+
+        // Check if any of the hit objects are inventory slots
+        foreach (RaycastResult result in results)
+        {
+            InventorySlotUI slotUI = result.gameObject.GetComponent<InventorySlotUI>();
+            if (slotUI != null && slots.Contains(slotUI))
+            {
+                return slotUI;
+            }
+        }
+
+        return null;
+    }
+
+
+
+    private void OnStartedDrag(InventorySlotUI slot)
+    {
+        draggingItem = slot.Item;
+
+        slot.SetItem(null);
+
+        draging = true;
+
+        if (selectedSlot)
+            selectedSlot.Unselect();
+
+        if (currentHoverSlot)
+            currentHoverSlot.Unhover();
+
+        descriptionPanel.Close();
+        slot.StartDrag();
+    }
+
     private void OnUnhovered(InventorySlotUI slot)
     {
+        if (draging) return;
+
         slot.Unhover();
         if (currentHoverSlot == slot)
         {
@@ -68,6 +148,8 @@ public class InventoryUI : MonoBehaviour
 
     private void OnHovered(InventorySlotUI slot)
     {
+        if (draging) return;
+
         if (currentHoverSlot != null)
             currentHoverSlot.Unhover();
 
@@ -82,6 +164,8 @@ public class InventoryUI : MonoBehaviour
 
     private void OnSlotSelected(InventorySlotUI slot)
     {
+        if (draging) return;
+
         if (selectedSlot != null)
             selectedSlot.Unselect();
 
