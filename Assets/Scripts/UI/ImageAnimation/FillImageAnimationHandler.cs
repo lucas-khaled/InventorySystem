@@ -25,6 +25,8 @@ public class FillImageAnimationHandler : ImageAnimationHandler
                 .SetLoops(-1, loopType);
 
         sequence.Play();
+
+        OnStart?.Invoke();
     }
 
     public override void Stop()
@@ -32,6 +34,6 @@ public class FillImageAnimationHandler : ImageAnimationHandler
         sequence.Kill();
 
         sequence = DOTween.Sequence();
-        sequence.Append(image.DOFillAmount(0, 0.2f));
+        sequence.Append(image.DOFillAmount(0, 0.2f)).OnComplete(() => OnEnd?.Invoke());
     }
 }

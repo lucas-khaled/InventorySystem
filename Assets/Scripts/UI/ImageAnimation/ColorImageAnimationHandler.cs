@@ -27,12 +27,14 @@ public class ColorImageAnimationHandler : ImageAnimationHandler
                 .AppendInterval(interval)
                 .Append(image.DOColor(initialColor, duration))
                 .SetLoops(-1, loopType);
+
+        OnStart?.Invoke();
     }
 
     public override void Stop()
     {
         sequence.Kill();
 
-        sequence.Append(image.DOColor(initialColor, 0.2f));
+        sequence.Append(image.DOColor(initialColor, 0.2f)).OnComplete(() => OnEnd?.Invoke()); ;
     }
 }
