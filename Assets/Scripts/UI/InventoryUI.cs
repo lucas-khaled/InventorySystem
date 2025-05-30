@@ -10,6 +10,7 @@ public class InventoryUI : MonoBehaviour
     [SerializeField] private InventorySlotUI inventorySlotPrefab;
     [SerializeField] private Transform slotsContent;
     [SerializeField] private DescriptionPanel descriptionPanel;
+    [SerializeField] private Image draggingImage;
 
     private List<InventorySlotUI> slots = new();
     private InventorySlotUI selectedSlot;
@@ -18,10 +19,12 @@ public class InventoryUI : MonoBehaviour
     private Item draggingItem;
     private CanvasGroup canvasGroup;
     private bool draging;
+    
 
     private void Awake()
     {
         canvasGroup = GetComponent<CanvasGroup>();
+        draggingImage.gameObject.SetActive(false);
     }
 
     private void OnEnable()
@@ -65,7 +68,8 @@ public class InventoryUI : MonoBehaviour
 
     private void OnUpdateDrag(InventorySlotUI obj)
     {
-        Debug.Log("Mouse pos: " + Input.mousePosition);
+        draggingImage.rectTransform.position = Vector3.Lerp(draggingImage.rectTransform.position, Input.mousePosition, 0.1f);
+        //draggingImage.rectTransform.sha
     }
 
     private void OnEndedDrag(InventorySlotUI slot)
@@ -84,6 +88,9 @@ public class InventoryUI : MonoBehaviour
         }
         else
             slot.Slot.SetItem(draggingItem);
+
+        draggingImage.gameObject.SetActive(false);
+        draggingImage.sprite = null;
 
         draggingItem = null;
         slot.EndDrag();
@@ -114,21 +121,22 @@ public class InventoryUI : MonoBehaviour
         return null;
     }
 
-
-
     private void OnStartedDrag(InventorySlotUI slot)
     {
         draggingItem = slot.Item;
-
         slot.SetItem(null);
 
         draging = true;
 
         if (selectedSlot)
             selectedSlot.Unselect();
-
         if (currentHoverSlot)
             currentHoverSlot.Unhover();
+
+        draggingImage.gameObject.SetActive(true);
+        draggingImage.sprite = draggingItem.display;
+        draggingImage.preserveAspect = true;
+        draggingImage.rectTransform.position = Input.mousePosition;
 
         descriptionPanel.Close();
         slot.StartDrag();

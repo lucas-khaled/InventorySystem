@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   name: 'Dummy2 '
   description: An Item just for testing 2
-  display: {fileID: 21300000, guid: 89bf7d094291f9a49ae741e25f152f9c, type: 3}
+  display: {fileID: 10901, guid: 0000000000000000f000000000000000, type: 0}
