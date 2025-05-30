@@ -11,6 +11,7 @@ public class InventoryUI : MonoBehaviour
     [SerializeField] private Transform slotsContent;
     [SerializeField] private DescriptionPanel descriptionPanel;
     [SerializeField] private Image draggingImage;
+    [SerializeField] private Button removeButton;
 
     private List<InventorySlotUI> slots = new();
     private InventorySlotUI selectedSlot;
@@ -25,11 +26,13 @@ public class InventoryUI : MonoBehaviour
     {
         canvasGroup = GetComponent<CanvasGroup>();
         draggingImage.gameObject.SetActive(false);
+        removeButton.onClick.AddListener(RemoveCurrentItem);
     }
 
     private void OnEnable()
     {
         Inventory.OnSlotsInitialized += InitializeUI;
+        removeButton.gameObject.SetActive(false);
     }
 
     private void OnDisable()
@@ -69,7 +72,6 @@ public class InventoryUI : MonoBehaviour
     private void OnUpdateDrag(InventorySlotUI obj)
     {
         draggingImage.rectTransform.position = Vector3.Lerp(draggingImage.rectTransform.position, Input.mousePosition, 0.1f);
-        //draggingImage.rectTransform.sha
     }
 
     private void OnEndedDrag(InventorySlotUI slot)
@@ -77,28 +79,42 @@ public class InventoryUI : MonoBehaviour
         draging = false;
 
         Vector2 mousePosition = Input.mousePosition;
-        InventorySlotUI hitSlot = GetSlotUnderPosition(mousePosition);
 
-        if (hitSlot != null)
+        GetAreaResultType resultType;
+        InventorySlotUI hitSlot = GetAreaUnderPosition(mousePosition, out resultType);
+
+        switch (resultType) 
         {
-            if (hitSlot.IsEmpty is false)
-                slot.SetItem(hitSlot.Item);
-
-            hitSlot.SetItem(draggingItem);
+            case GetAreaResultType.None:
+                slot.Slot.SetItem(draggingItem);
+                break;
+            case GetAreaResultType.Slot:
+                SwapSlot(slot, hitSlot);
+                break;
+            case GetAreaResultType.RemoveButton:
+                slot.SetItem(null);
+                break;
         }
-        else
-            slot.Slot.SetItem(draggingItem);
 
         draggingImage.gameObject.SetActive(false);
         draggingImage.sprite = null;
+
+        removeButton.gameObject.SetActive(false);
 
         draggingItem = null;
         slot.EndDrag();
     }
 
-    private InventorySlotUI GetSlotUnderPosition(Vector2 screenPosition)
+    private void SwapSlot(InventorySlotUI slot, InventorySlotUI hitSlot)
     {
-        // Use GraphicRaycaster to detect UI elements under the mouse
+        if (hitSlot.IsEmpty is false)
+            slot.SetItem(hitSlot.Item);
+
+        hitSlot.SetItem(draggingItem);
+    }
+
+    private InventorySlotUI GetAreaUnderPosition(Vector2 screenPosition, out GetAreaResultType type)
+    {
         GraphicRaycaster raycaster = GetComponentInParent<Canvas>().GetComponent<GraphicRaycaster>();
         PointerEventData pointerData = new PointerEventData(EventSystem.current)
         {
@@ -108,16 +124,23 @@ public class InventoryUI : MonoBehaviour
         List<RaycastResult> results = new List<RaycastResult>();
         raycaster.Raycast(pointerData, results);
 
-        // Check if any of the hit objects are inventory slots
         foreach (RaycastResult result in results)
         {
             InventorySlotUI slotUI = result.gameObject.GetComponent<InventorySlotUI>();
             if (slotUI != null && slots.Contains(slotUI))
             {
+                type = GetAreaResultType.Slot;
                 return slotUI;
+            }
+
+            if(result.gameObject == removeButton.gameObject)
+            {
+                type = GetAreaResultType.RemoveButton;
+                return null;
             }
         }
 
+        type = GetAreaResultType.None;
         return null;
     }
 
@@ -125,6 +148,8 @@ public class InventoryUI : MonoBehaviour
     {
         draggingItem = slot.Item;
         slot.SetItem(null);
+
+        removeButton.gameObject.SetActive(true);
 
         draging = true;
 
@@ -179,14 +204,8 @@ public class InventoryUI : MonoBehaviour
 
         selectedSlot = slot;
         selectedSlot.Select();
-    }
 
-    private void Clear()
-    {
-        foreach (var slot in slots)
-            Destroy(slot.gameObject);
-
-        slots.Clear();
+        removeButton.gameObject.SetActive(true);
     }
 
     public void Open()
@@ -201,5 +220,24 @@ public class InventoryUI : MonoBehaviour
         canvasGroup.interactable = false;
         canvasGroup.blocksRaycasts = false;
         canvasGroup.alpha = 0;
+
+        removeButton.gameObject.SetActive(false);
+    }
+
+    private void RemoveCurrentItem()
+    {
+        if (selectedSlot == null) return;
+
+        selectedSlot.Unselect();
+        selectedSlot.SetItem(null);
+        selectedSlot = null;
+        removeButton.gameObject.SetActive(false);
+    }
+
+    private enum GetAreaResultType 
+    {
+        None,
+        Slot,
+        RemoveButton
     }
 }
