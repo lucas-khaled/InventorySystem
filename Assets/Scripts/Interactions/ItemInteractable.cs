@@ -1,21 +1,28 @@
 using UnityEngine;
+using UnityEngine.Events;
 
 public class ItemInteractable : MonoBehaviour, IInteractable
 {
     [SerializeField] private Item item;
 
+    public UnityEvent<bool> OnHover;
+    public UnityEvent OnInteract;
+
     public void Hover()
     {
-        Debug.Log("Hover "+name);
+        OnHover?.Invoke(true);
     }
 
     public void Interact()
     {
         Inventory.Instance.AddItem(item);
+        OnInteract?.Invoke();
+
+        Destroy(gameObject);
     }
 
     public void UnHover()
     {
-        Debug.Log("Unhover "+name);
+        OnHover?.Invoke(false);
     }
 }

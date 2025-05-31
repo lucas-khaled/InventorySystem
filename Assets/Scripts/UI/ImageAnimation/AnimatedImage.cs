@@ -11,6 +11,8 @@ public class AnimatedImage : MonoBehaviour
     private ImageAnimationHandler handler;
     [SerializeField]
     private bool handleActivation;
+    [SerializeField]
+    private bool playOnStart = false;
     
     private Image image;
    
@@ -25,6 +27,9 @@ public class AnimatedImage : MonoBehaviour
     {
         handler.OnStart += OnStart;
         handler.OnEnd += OnEnd;
+
+        if (playOnStart)
+            Play();
     }
 
     private void OnEnd()
