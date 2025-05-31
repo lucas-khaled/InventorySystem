@@ -12,6 +12,7 @@ public class InventoryUI : MonoBehaviour
     [SerializeField] private DescriptionPanel descriptionPanel;
     [SerializeField] private Image draggingImage;
     [SerializeField] private Button removeButton;
+    [SerializeField] private Button useButton;
 
     private List<InventorySlotUI> slots = new();
     private InventorySlotUI selectedSlot;
@@ -27,12 +28,14 @@ public class InventoryUI : MonoBehaviour
         canvasGroup = GetComponent<CanvasGroup>();
         draggingImage.gameObject.SetActive(false);
         removeButton.onClick.AddListener(RemoveCurrentItem);
+        useButton.onClick.AddListener(ConsumeCurrentItem);
     }
 
     private void OnEnable()
     {
         Inventory.OnSlotsInitialized += InitializeUI;
         removeButton.gameObject.SetActive(false);
+        useButton.gameObject.SetActive(false);
     }
 
     private void OnDisable()
@@ -94,12 +97,18 @@ public class InventoryUI : MonoBehaviour
             case GetAreaResultType.RemoveButton:
                 slot.SetItem(null);
                 break;
+            case GetAreaResultType.UseButton:
+                var consumable = draggingItem as Consumable;
+                consumable.Consume();
+                slot.SetItem(null);
+                break;
         }
 
         draggingImage.gameObject.SetActive(false);
         draggingImage.sprite = null;
 
         removeButton.gameObject.SetActive(false);
+        useButton.gameObject.SetActive(false);
 
         draggingItem = null;
         slot.EndDrag();
@@ -138,6 +147,12 @@ public class InventoryUI : MonoBehaviour
                 type = GetAreaResultType.RemoveButton;
                 return null;
             }
+
+            if (result.gameObject == useButton.gameObject)
+            {
+                type = GetAreaResultType.UseButton;
+                return null;
+            }
         }
 
         type = GetAreaResultType.None;
@@ -150,6 +165,7 @@ public class InventoryUI : MonoBehaviour
         slot.SetItem(null);
 
         removeButton.gameObject.SetActive(true);
+        useButton.gameObject.SetActive(draggingItem is Consumable);
 
         draging = true;
 
@@ -206,6 +222,7 @@ public class InventoryUI : MonoBehaviour
         selectedSlot.Select();
 
         removeButton.gameObject.SetActive(true);
+        useButton.gameObject.SetActive(selectedSlot.Item is Consumable);
     }
 
     public void Open()
@@ -234,10 +251,20 @@ public class InventoryUI : MonoBehaviour
         removeButton.gameObject.SetActive(false);
     }
 
+    private void ConsumeCurrentItem()
+    {
+        if (selectedSlot.Item is not Consumable consumable) return;
+
+        consumable.Consume();
+        RemoveCurrentItem();
+        useButton.gameObject.SetActive(false);
+    }
+
     private enum GetAreaResultType 
     {
         None,
         Slot,
-        RemoveButton
+        RemoveButton,
+        UseButton
     }
 }

@@ -4,6 +4,7 @@ using UnityEngine;
 public class Item : ScriptableObject
 {
     public new string name;
+    [TextArea]
     public string description;
     public Sprite display;
 }
