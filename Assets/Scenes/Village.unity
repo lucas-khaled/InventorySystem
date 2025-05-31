@@ -15324,6 +15324,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   slotAmount: 20
+  database: {fileID: 11400000, guid: 1fa70df46cda03e4db43a6911ef31472, type: 2}
 --- !u!4 &1727658728
 Transform:
   m_ObjectHideFlags: 0
